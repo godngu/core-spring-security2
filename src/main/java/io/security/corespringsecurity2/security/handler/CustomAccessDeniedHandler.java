@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.Setter;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.stereotype.Component;
 
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
