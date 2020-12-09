@@ -1,8 +1,8 @@
 package io.security.corespringsecurity2.controller.user;
 
-import io.security.corespringsecurity2.domain.Account;
-import io.security.corespringsecurity2.domain.AccountDto;
-import io.security.corespringsecurity2.service.impl.UserService;
+import io.security.corespringsecurity2.domain.entity.Account;
+import io.security.corespringsecurity2.domain.dto.AccountDto;
+import io.security.corespringsecurity2.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

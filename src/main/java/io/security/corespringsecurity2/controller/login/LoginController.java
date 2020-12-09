@@ -1,6 +1,6 @@
 package io.security.corespringsecurity2.controller.login;
 
-import io.security.corespringsecurity2.domain.Account;
+import io.security.corespringsecurity2.domain.entity.Account;
 import io.security.corespringsecurity2.security.token.AjaxAuthenticationToken;
 import java.security.Principal;
 import javax.servlet.http.HttpServletRequest;

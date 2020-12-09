@@ -1,9 +1,11 @@
 package io.security.corespringsecurity2.security.service;
 
-import io.security.corespringsecurity2.domain.Account;
+import io.security.corespringsecurity2.domain.entity.Account;
 import io.security.corespringsecurity2.repository.UserRepository;
-import java.util.ArrayList;
+import io.security.corespringsecurity2.service.UserService;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -11,14 +13,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service("userDetailsService")
-public class CustomUserDetailsService implements UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         Account account = userRepository.findByUsername(username);
@@ -27,11 +31,16 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("UsernameNotFoundException");
         }
 
-        List<GrantedAuthority> roles = new ArrayList<>();
-        roles.add(new SimpleGrantedAuthority(account.getRole()));
+        Set<String> userRoles = account.getUserRoles()
+            .stream()
+            .map(userRole -> userRole.getRoleName())
+            .collect(Collectors.toSet());
 
-        AccountContext accountContext = new AccountContext(account, roles);
+        List<GrantedAuthority> collect = userRoles.stream()
+            .map(SimpleGrantedAuthority::new)
+            .collect(Collectors.toList());
 
-        return accountContext;
+        return new AccountContext(account, collect);
     }
+
 }
