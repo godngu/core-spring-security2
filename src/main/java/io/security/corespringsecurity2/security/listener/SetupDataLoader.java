@@ -1,9 +1,13 @@
 package io.security.corespringsecurity2.security.listener;
 
+import io.security.corespringsecurity2.domain.entity.AccessIp;
 import io.security.corespringsecurity2.domain.entity.Account;
 import io.security.corespringsecurity2.domain.entity.Resources;
 import io.security.corespringsecurity2.domain.entity.Role;
+import io.security.corespringsecurity2.domain.entity.RoleHierarchy;
+import io.security.corespringsecurity2.repository.AccessIpRepository;
 import io.security.corespringsecurity2.repository.ResourcesRepository;
+import io.security.corespringsecurity2.repository.RoleHierarchyRepository;
 import io.security.corespringsecurity2.repository.RoleRepository;
 import io.security.corespringsecurity2.repository.UserRepository;
 import java.util.HashSet;
@@ -33,6 +37,12 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private RoleHierarchyRepository roleHierarchyRepository;
+
+    @Autowired
+    private AccessIpRepository accessIpRepository;
+
     private static AtomicInteger count = new AtomicInteger(0);
 
     @Override
@@ -45,6 +55,8 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
 
         setupSecurityResources();
 
+        setupAccessIpData();
+
         alreadySetup = true;
     }
 
@@ -53,7 +65,12 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         Role adminRole = createRoleIfNotFound("ROLE_ADMIN", "관리자");
         roles.add(adminRole);
         createResourceIfNotFound("/admin/**", "", roles, "url");
-        Account account = createUserIfNotFound("admin", "pass", "admin@gmail.com", 10, roles);
+        createUserIfNotFound("admin", "pass", "admin@gmail.com", 10, roles);
+
+        Role managerRole = createRoleIfNotFound("ROLE_MANAGER", "매니저권한");
+        Role userRole = createRoleIfNotFound("ROLE_USER", "사용자권한");
+        createRoleHierarchyIfNotFound(managerRole, adminRole);
+        createRoleHierarchyIfNotFound(userRole, managerRole);
 
 //        createResourceIfNotFound("execution(public * io.security.corespringsecurity.aopsecurity.*Service.pointcut*(..))", "", roles, "pointcut");
 //        createUserIfNotFound("admin", "admin@admin.com", "pass", roles);
@@ -110,5 +127,36 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
                 .build();
         }
         return resourcesRepository.save(resources);
+    }
+
+    @Transactional
+    public void createRoleHierarchyIfNotFound(Role currentRole, Role parentRole) {
+
+        RoleHierarchy roleHierarchy = roleHierarchyRepository.findByRoleName(parentRole.getRoleName());
+        if (roleHierarchy == null) {
+            roleHierarchy = RoleHierarchy.builder()
+                .roleName(parentRole.getRoleName())
+                .build();
+        }
+        RoleHierarchy parentRoleHierarchy = roleHierarchyRepository.save(roleHierarchy);
+
+        roleHierarchy = roleHierarchyRepository.findByRoleName(currentRole.getRoleName());
+        if (roleHierarchy == null) {
+            roleHierarchy = RoleHierarchy.builder()
+                .roleName(currentRole.getRoleName())
+                .build();
+        }
+
+        RoleHierarchy childRoleHierarchy = roleHierarchyRepository.save(roleHierarchy);
+        childRoleHierarchy.setParentName(parentRoleHierarchy);
+    }
+
+    private void setupAccessIpData() {
+        AccessIp byIpAddress = accessIpRepository.findByIpAddress("0:0:0:0:0:0:0:1");
+        if (byIpAddress == null) {
+            accessIpRepository.save(AccessIp.builder()
+                .ipAddress("0:0:0:0:0:0:0:1")
+                .build());
+        }
     }
 }

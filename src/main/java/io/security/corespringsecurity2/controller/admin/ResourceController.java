@@ -4,6 +4,7 @@ import io.security.corespringsecurity2.domain.dto.ResourcesDto;
 import io.security.corespringsecurity2.domain.entity.Resources;
 import io.security.corespringsecurity2.domain.entity.Role;
 import io.security.corespringsecurity2.repository.RoleRepository;
+import io.security.corespringsecurity2.security.metadatasource.UrlFilterInvocationSecurityMetadataSource;
 import io.security.corespringsecurity2.service.ResourceService;
 import io.security.corespringsecurity2.service.RoleService;
 import java.util.HashSet;
@@ -29,6 +30,9 @@ public class ResourceController {
     @Autowired
     private RoleService roleService;
 
+    @Autowired
+    private UrlFilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource;
+
     @GetMapping(value = "/admin/resources")
     public String getResources(Model model) {
         List<Resources> resources = resourceService.getResources();
@@ -48,7 +52,7 @@ public class ResourceController {
 
         // TODO: 이건 자세히 봐야 함
         if ("url".equals(resourcesDto.getResourceType())) {
-
+            urlFilterInvocationSecurityMetadataSource.reload();
         } else {
 
         }
@@ -88,7 +92,7 @@ public class ResourceController {
 
         // TODO
         if ("url".equals(resources.getResourceType())) {
-
+            urlFilterInvocationSecurityMetadataSource.reload();
         } else {
 
         }
