@@ -19,11 +19,6 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @GetMapping(value = "/mypage")
-    public String myPage() {
-        return "user/mypage";
-    }
-
     @GetMapping("/users")
     public String createUser() {
         return "user/login/register";
@@ -38,5 +33,16 @@ public class UserController {
         userService.createUser(account);
 
         return "redirect:/";
+    }
+
+    @GetMapping(value = "/mypage")
+    public String myPage() {
+        return "user/mypage";
+    }
+
+    @GetMapping("/order")
+    public String order() {
+        userService.order();
+        return "user/mypage";
     }
 }

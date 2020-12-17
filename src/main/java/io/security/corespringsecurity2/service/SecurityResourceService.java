@@ -47,4 +47,30 @@ public class SecurityResourceService {
             .map(accessIp -> accessIp.getIpAddress())
             .collect(Collectors.toList());
     }
+
+    public LinkedHashMap<String, List<ConfigAttribute>> getMethodList() {
+        LinkedHashMap<String, List<ConfigAttribute>> result = new LinkedHashMap<>();
+        List<Resources> resourcesList = resourcesRepository.findAllMethodResources();
+        resourcesList.forEach(re -> {
+            List<ConfigAttribute> configAttributeList = new ArrayList<>();
+            re.getRoleSet().forEach(role -> {
+                configAttributeList.add(new SecurityConfig(role.getRoleName()));
+            });
+            result.put(re.getResourceName(), configAttributeList);
+        });
+        return result;
+    }
+
+    public LinkedHashMap<String, List<ConfigAttribute>> getPointcutResourceList() {
+        LinkedHashMap<String, List<ConfigAttribute>> result = new LinkedHashMap<>();
+        List<Resources> resourcesList = resourcesRepository.findAllPointcutResources();
+        resourcesList.forEach(re -> {
+            List<ConfigAttribute> configAttributeList = new ArrayList<>();
+            re.getRoleSet().forEach(role -> {
+                configAttributeList.add(new SecurityConfig(role.getRoleName()));
+            });
+            result.put(re.getResourceName(), configAttributeList);
+        });
+        return result;
+    }
 }
